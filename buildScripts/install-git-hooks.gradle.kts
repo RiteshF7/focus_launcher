@@ -1,6 +1,7 @@
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.nio.file.attribute.PosixFilePermission
+import org.gradle.internal.os.OperatingSystem
 
 // Create a task to copy Git hooks from /scripts to .git/hooks path
 val installGitHooks by tasks.creating(Copy::class) {
@@ -12,9 +13,13 @@ val installGitHooks by tasks.creating(Copy::class) {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 
     doLast {
-        val perms = Files.getPosixFilePermissions(toFilePath)
-        perms.add(PosixFilePermission.OWNER_EXECUTE)
-        Files.setPosixFilePermissions(toFilePath, perms)
+        // Only set POSIX permissions on Unix-like systems (Linux, macOS)
+        // Windows doesn't support POSIX file permissions
+        if (!OperatingSystem.current().isWindows) {
+            val perms = Files.getPosixFilePermissions(toFilePath)
+            perms.add(PosixFilePermission.OWNER_EXECUTE)
+            Files.setPosixFilePermissions(toFilePath, perms)
+        }
     }
 }
 
