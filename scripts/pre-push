@@ -2,6 +2,20 @@
 
 echo "Running Git pre-push hook"
 
+# Set JAVA_HOME to Android Studio's bundled JDK (Java 17+) for Windows/Linux/macOS
+if [[ "$OSTYPE" == "msys" || "$OSTYPE" == "win32" ]]; then
+    # Windows (Git Bash)
+    export JAVA_HOME="C:/Program Files/Android/Android Studio/jbr"
+elif [[ "$OSTYPE" == "darwin"* ]]; then
+    # macOS
+    export JAVA_HOME="/Applications/Android Studio.app/Contents/jbr/Contents/Home"
+else
+    # Linux - try to find Android Studio's JBR or use system Java
+    if [ -d "$HOME/android-studio/jbr" ]; then
+        export JAVA_HOME="$HOME/android-studio/jbr"
+    fi
+fi
+
 echo "Running static analysis"
 ./gradlew detekt --daemon
 
